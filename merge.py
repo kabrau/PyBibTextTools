@@ -2,14 +2,19 @@ import os
 from pybtex.database import parse_file
 from pybtex.database import BibliographyData, Entry
 import unidecode
+import urllib.request
+from html.parser import HTMLParser
+from urllib.request import Request, urlopen
 
 folder = 'C:/Users/marcelo/Google Drive/Doutorado/Revisão Sistematica (1)/resultados pesquisas/'
 
-pesquisas = [{'lib':'Scholar','filename':'G.Scholar.bib'},
-             {'lib':'ACM','filename':'ACM.bib'},
-             {'lib':'IEEE','filename':'IEEE.bib'},
-             {'lib':'Scopus','filename':'scopus.bib'},
-             {'lib':'Elsevier','filename':'ScienceDirect.bib'}]
+destino = os.path.join(folder,"myfile.bib")
+
+pesquisas =[{'lib':'IEEE','filename':'IEEE.bib'},
+            {'lib':'ACM','filename':'ACM.bib'},
+            {'lib':'Scholar','filename':'G.Scholar.bib'},
+            {'lib':'Scopus','filename':'scopus.bib'},
+            {'lib':'Elsevier','filename':'ScienceDirect.bib'}]
 
 bigFinal = BibliographyData()
 
@@ -65,12 +70,33 @@ for pesquisa in pesquisas:
         elif (not 'journal' in entry.fields.keys() ) and (not 'booktitle' in entry.fields.keys() ):
             semJornal = semJornal + 1
         else:                
-            #print(entry.key)
-            #print(entry.persons.keys())
-            #print(entry.fields.keys())
-            #print(entry.persons['author'])
-            #print(entry.fields['title'])
             key =  entry.key.lower()
+            print("Chave "+key+"               \r", end="", flush=True)
+
+
+            if (pesquisa['lib']=="IEEE") and (not 'abstract' in entry.fields.keys() ):
+                site = "https://ieeexplore.ieee.org/document/"+key+"/"
+                with urllib.request.urlopen(site) as response:
+                    html = response.read()
+                    texto = html.decode("utf-8")
+                    inicio = texto.find('"abstract":')
+                    subtexto = texto[inicio:]
+                    abstractSplit = subtexto.split('"')
+                    if len(abstractSplit)>=3:
+                        entry.fields['abstract'] = abstractSplit[3]
+
+
+            if (pesquisa['lib']=="ACM") and (not 'abstract' in entry.fields.keys() ) and ('acmid' in entry.fields.keys() ):
+                site = "https://dl.acm.org/tab_abstract.cfm?id="+entry.fields['acmid']
+                req = Request(site, headers={'User-Agent': 'Mozilla/5.0'})
+                html = urlopen(req).read()
+                texto = html.decode("utf-8")
+                inicio = texto.find("<p>")+3
+                final = texto.find("</p>")
+                if (inicio > 1 and final > 1):
+                    inicio = inicio + 3
+                    entry.fields['abstract'] = texto[inicio:final]
+
 
             entry.fields['note'] = pesquisa['lib']
             entryVelho = None
@@ -118,6 +144,7 @@ for pesquisa in pesquisas:
     #bib_data.to_file() 
 
 #print(bigFinal.to_string('bibtex'))
+print("")
 print("Total ", i)
 
 print("Sem autor ", semAutor)
@@ -127,9 +154,16 @@ print("Sem Jornal ", semJornal)
 
 print("Duplicados ", duplicados, " mesclados ",mesclados)
 print("Final ", len(bigFinal.entries))
-#print(bigFinal.entries.keys())
 
-#print(bigFinal.entries[bigFinal.entries.keys()[0]] )
+qtdSemAbstract = 0 
+for entry in bigFinal.entries.values():
+    if not 'abstract' in entry.fields.keys():
+        qtdSemAbstract = qtdSemAbstract + 1
+    
+
+print("Sem Abstract ", qtdSemAbstract)
+
+bigFinal.to_file(destino)
 
 
 
