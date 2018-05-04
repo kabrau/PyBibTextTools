@@ -1,4 +1,7 @@
 import os
+import sys
+sys.path.insert(0, 'E:/GitHub/pybtex/')
+
 from pybtex.database import parse_file
 from pybtex.database import BibliographyData, Entry
 import unidecode
@@ -6,7 +9,11 @@ import urllib.request
 from html.parser import HTMLParser
 from urllib.request import Request, urlopen
 
-folder = 'C:/Users/marcelo/Google Drive/Doutorado/Revisão Sistematica (1)/resultados pesquisas/'
+# NOTE
+folder = 'C:/Users/marcelo/Google Drive/Doutorado/Revisão Sistematica/resultados pesquisas/'
+
+# PC
+folder = 'E:/Google Drive/Doutorado/Revisão Sistematica/resultados pesquisas/'
 
 destino = os.path.join(folder,"myfile.bib")
 
