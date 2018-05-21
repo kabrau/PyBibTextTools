@@ -19,8 +19,8 @@ destino = os.path.join(folder,"myfile.bib")
 
 pesquisas =[{'lib':'IEEE','filename':'IEEE.bib'},
             {'lib':'ACM','filename':'ACM.bib'},
-            {'lib':'Scholar','filename':'G.Scholar.bib'},
-            {'lib':'Scopus','filename':'scopus.bib'},
+            {'lib':'scopus','filename':'scopus.bib'},
+            {'lib':'Springer','filename':'Springer.bib'},
             {'lib':'Elsevier','filename':'ScienceDirect.bib'}]
 
 bigFinal = BibliographyData()
@@ -64,7 +64,7 @@ semAno = 0
 semJornal = 0
 duplicados = 0
 for pesquisa in pesquisas:
-
+    print(pesquisa['lib'])    
     bib_data = parse_file(os.path.join(folder,pesquisa['filename']))
 
     for entry in bib_data.entries.values():
