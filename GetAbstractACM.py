@@ -12,7 +12,7 @@ from urllib.request import Request, urlopen
 import re
 
 usuario = "17190654"
-senha = "xxxx"
+senha = "xxx"
 
 # NOTE
 folder = 'C:/Users/marcelo/Google Drive/Doutorado/Revisão Sistematica/resultados pesquisas/'
