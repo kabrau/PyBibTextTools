@@ -19,9 +19,9 @@ destino = os.path.join(folder,"myfile.bib")
 
 pesquisas =[{'lib':'IEEE','filename':'IEEE.bib'},
             {'lib':'ACM','filename':'ACM.bib'},
-            {'lib':'scopus','filename':'scopus.bib'},
-            {'lib':'Springer','filename':'Springer.bib'},
-            {'lib':'Elsevier','filename':'ScienceDirect.bib'}]
+            {'lib':'SCOPUS','filename':'scopus.bib'},
+            {'lib':'SPRINGER','filename':'Springer.bib'},
+            {'lib':'ELSEVIER','filename':'ScienceDirect.bib'}]
 
 bigFinal = BibliographyData()
 
@@ -49,6 +49,7 @@ def mergeEntry(original, novo):
         abs2 = novo.fields['abstract']
     if (len(abs2)>len(abs1)):
         original.fields['abstract'] = novo.fields['abstract']
+        original.fields['source'] = original.fields['source'] +";" + novo.fields['source']
         mesclado = True
 
     if (mesclado):
@@ -80,7 +81,7 @@ for pesquisa in pesquisas:
             key =  entry.key.lower()
             print("Chave "+key+"               \r", end="", flush=True)
 
-            entry.fields['note'] = pesquisa['lib']
+            entry.fields['source'] = pesquisa['lib']
             entryVelho = None
 
             cc = 0
