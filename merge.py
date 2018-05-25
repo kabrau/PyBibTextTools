@@ -95,22 +95,24 @@ for pesquisa in pesquisas:
                         #    print("==== Encontrou ", cc)
                         entryVelho = entry1
                     elif (diff==1 or diff==2):
-                        lastname = unidecode.unidecode(entry.persons['author'][0].last_names[0]).lower()
-                        lastname1 = unidecode.unidecode(entry1.persons['author'][0].last_names[0]).lower()
-                        first_name = unidecode.unidecode(entry.persons['author'][0].first_names[0]).lower()
-                        first_name1 = unidecode.unidecode(entry1.persons['author'][0].first_names[0]).lower()
+                        try:
+                            lastname = unidecode.unidecode(entry.persons['author'][0].last_names[0]).lower()
+                            lastname1 = unidecode.unidecode(entry1.persons['author'][0].last_names[0]).lower()
+                            first_name = unidecode.unidecode(entry.persons['author'][0].first_names[0]).lower()
+                            first_name1 = unidecode.unidecode(entry1.persons['author'][0].first_names[0]).lower()
+                            if (lastname==lastname1 or lastname==first_name1 or lastname1==first_name):
+                                #if (cc>0):
+                                #    print("==== Encontrou ", cc)
+                                entryVelho = entry1
+                            else:
+                                cc = cc + 1    
+                                #print("====", cc)
+                                #print(entry1.fields['title'])
+                                #print(year,year1)
+                        except :
+                            print(entry1.persons['author'])
+                            print(entry.persons['author'])
 
-                        if (lastname==lastname1 or lastname==first_name1 or lastname1==first_name):
-                            #if (cc>0):
-                            #    print("==== Encontrou ", cc)
-                            entryVelho = entry1
-                        else:
-                            cc = cc + 1    
-                            #print("====", cc)
-                            #print(entry1.fields['title'])
-                            #print(year,year1)
-                            #print(entry1.persons['author'])
-                            #print(entry.persons['author'])
   
             if (entryVelho != None):
                 duplicados = duplicados + 1
