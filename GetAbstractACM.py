@@ -23,8 +23,8 @@ folder = 'E:/Google Drive/Doutorado/Revisão Sistematica/resultados pesquisas/'
 origem = os.path.join(folder,"ACM.bib")
 bib_data = parse_file(origem)
 
-destino = os.path.join(folder,"MyACM.bib")
-bigFinal = BibliographyData()
+destino = os.path.join(folder,"ACM.bib")
+bigFinal = bib_data #BibliographyData()
 
 i = 0
 problems = 0
@@ -63,7 +63,7 @@ for entry in bib_data.entries.values():
 
 
         bigFinal.entries[entry.key] = entry
-        if adicionados > 10:
+        if adicionados > 50:
             break 
 
 

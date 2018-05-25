@@ -77,9 +77,11 @@ for row_index,row in pn.iterrows():
         typePaper = 'InProceedings'
 
    if (not pd.isnull(row.author)):
+        paper = Entry(typePaper, fields)
         entry = BibliographyData({
-            keyPaper: Entry(typePaper, fields)
+            keyPaper: paper
         })
+        
         print(row_index,"=>",entry.to_string('bibtex'))
         bigFinal.entries[keyPaper] = Entry(typePaper, fields)
         #print(row_index,"=>",bigFinal)

@@ -17,7 +17,7 @@ folder = 'E:/Google Drive/Doutorado/Revisão Sistematica/resultados pesquisas/'
 
 destino = os.path.join(folder,"myfile.bib")
 
-pesquisas =[{'lib':'IEEE','filename':'IEEE.bib'},
+pesquisas =[{'lib':'IEEE','filename':'MyIEEE.bib'},
             {'lib':'ACM','filename':'ACM.bib'},
             {'lib':'SCOPUS','filename':'scopus.bib'},
             {'lib':'SPRINGER','filename':'Springer.bib'},
