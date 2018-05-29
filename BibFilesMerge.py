@@ -131,13 +131,15 @@ def run(folderPath, fileList, fileNameOut):
     print("Duplicates ", duplicates, " merged ",mergedCont)
     print("Final ", len(bibDataOut.entries))
 
+
+    withoutAbstractList = {i: 0 for i in fileList}
     withoutAbstract = 0 
     for entry in bibDataOut.entries.values():
         if not 'abstract' in entry.fields.keys():
             withoutAbstract = withoutAbstract + 1
-        
+            withoutAbstractList[entry.fields['source']] = withoutAbstractList[entry.fields['source']] + 1
 
-    print("without Abstract ", withoutAbstract)
+    print("without Abstract ", withoutAbstract, withoutAbstractList)
 
     bibDataOut.to_file(fileNamePathOut)
 
