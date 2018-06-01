@@ -90,6 +90,16 @@ Merge BibText files and:
     - year or 
     - jornal name or conference name
 
+This tool has been tested with digital library files:
+- ACM Digital Library     
+- IEEE Xplore             
+- Scopus                  
+- SpringerLink            
+- ScienceDirect - ElsevierWeb of Science
+- Web of Science (Thanks Dinei André Rockenbach for this)
+
+
+
 ### RUN
 ```
 python BibFilesMerge.py -h
