@@ -15,22 +15,22 @@ def mergeEntry(original, novo):
     global mergedCont
     merged = False
 
-    yearOut = int(original.fields['year'])
-    year2 = int(novo.fields['year'])
+    yearOut = int(str(original.rich_fields['year']))
+    year2 = int(str(novo.rich_fields['year']))
     if (year2>yearOut):
         original.fields['year'] = novo.fields['year']
         merged = True
 
-    for novoKey in novo.fields.keys():
-        if novoKey not in original.fields.keys():
+    for novoKey in novo.fields:
+        if novoKey not in original.fields:
             original.fields[novoKey] = novo.fields[novoKey]
             merged = True
 
     abs1 = ""
     abs2 = ""
-    if "abstract" in original.fields.keys():
+    if "abstract" in original.fields:
         abs1 = original.fields['abstract']
-    if "abstract" in novo.fields.keys():
+    if "abstract" in novo.fields:
         abs2 = novo.fields['abstract']
     if (len(abs2)>len(abs1)):
         original.fields['abstract'] = novo.fields['abstract']
@@ -66,11 +66,11 @@ def run(folderPath, fileList, fileNameOut):
         for entry in bibData.entries.values():
             total = total + 1
 
-            if not 'author' in entry.persons.keys():
+            if not 'author' in entry.persons:
                 withoutAuthor = withoutAuthor + 1
-            elif not 'year' in entry.fields.keys() or int(entry.fields['year'])==0:
+            elif not 'year' in entry.fields or int(str(entry.rich_fields['year']))==0:
                 withoutYear = withoutYear + 1
-            elif (not 'journal' in entry.fields.keys() ) and (not 'booktitle' in entry.fields.keys() ):
+            elif (not 'journal' in entry.fields ) and (not 'booktitle' in entry.fields ):
                 withoutJornal = withoutJornal + 1
             else:                
                 key =  entry.key.lower()
@@ -81,8 +81,8 @@ def run(folderPath, fileList, fileNameOut):
 
                 for entryOut in bibDataOut.entries.values():
                     if (entryOut.fields['title'].lower()==entry.fields['title'].lower()):
-                        year = int(entry.fields['year'])
-                        yearOut = int(entryOut.fields['year'])
+                        year = int(str(entry.rich_fields['year']))
+                        yearOut = int(str(entryOut.rich_fields['year']))
                         diff = abs(year-yearOut)
                         if (diff==0):
                             oldEntry = entryOut
@@ -135,7 +135,7 @@ def run(folderPath, fileList, fileNameOut):
     withoutAbstractList = {i: 0 for i in fileList}
     withoutAbstract = 0 
     for entry in bibDataOut.entries.values():
-        if not 'abstract' in entry.fields.keys():
+        if not 'abstract' in entry.fields:
             withoutAbstract = withoutAbstract + 1
             withoutAbstractList[entry.fields['source']] = withoutAbstractList[entry.fields['source']] + 1
 
@@ -160,7 +160,7 @@ print("-f ",args["fileList"])
 
 run(args["folderPath"], args["fileList"], args["fileNameOut"])
 
-#python BibFilesMerge.py -p "E:\Google Drive\Doutorado\Revisão Sistematica\resultados pesquisas" -o "MyFile.bib" -f IEEE.bib ACM.bib science.bib Springer.bib
+#python BibFilesMerge.py -p "Revisao\resultados pesquisas" -o "MyFile.bib" -f IEEE.bib ACM.bib science.bib Springer.bib
     
-#python BibFilesMerge.py -p "E:\Google Drive\Doutorado\Revisão Sistematica\resultados pesquisas" -f IEEE.bib ACM.bib science.bib Springer.bib -o "MyFile.bib" 
+#python BibFilesMerge.py -p "Revisao\resultados pesquisas" -f IEEE.bib ACM.bib science.bib Springer.bib -o "MyFile.bib" 
 
