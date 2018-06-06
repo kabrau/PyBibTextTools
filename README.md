@@ -115,7 +115,7 @@ optional arguments:
                         science.bib Springer.bib
   -o FILENAMEOUT, --fileNameOut FILENAMEOUT
                         File name of merged file
-  -l, --logProcess      Record merged and final references to CSV files 
+  -l, --logProcess      List merged and final references to CSV files 
                         on FOLDERPATH
 ```
 
@@ -131,7 +131,10 @@ python BibFilesMerge.py -p "output_folder" -o MyFile.bib -f IEEE.bib ACM.bib sci
 >Final  2270  
 >without Abstract  746  
 
-The two CSV files created on `output_folder` by the `-l` switch.
+The two CSV files created on `output_folder` by the `-l` switch are:
+- `BibFilesMerge_removed.csv`, with columns cause, source, key, doi, author, year, title and publish
+    - cause is one of: no author, no year, no journal, duplicate of next or duplicate of prev
+- `BibFilesMerge_final.csv`, with columns key, doi, author, year, title, publish and abstract
 
 ### Load Bib File Error
 
