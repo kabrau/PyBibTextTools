@@ -17,7 +17,7 @@ def mergeEntry(original, novo):
 
     yearOut = int(str(original.rich_fields['year']))
     year2 = int(str(novo.rich_fields['year']))
-    if (year2>yearOut):
+    if (year2<yearOut):
         original.fields['year'] = novo.fields['year']
         merged = True
 
