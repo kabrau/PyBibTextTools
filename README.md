@@ -83,12 +83,12 @@ python GetAbstract.py -d springer -f "E:\Google Drive\Doutorado\Revisão Sistema
 
 Merge BibText files and:
 - remove duplicate entries 
-- in some cases before removing duplicates
+- in some cases merge information before removing duplicates
 - remove entries that not have:
     - author or
     - title or 
     - year or 
-    - jornal name or conference name
+    - journal name or conference name
 
 This tool has been tested with digital library files:
 - ACM Digital Library     
@@ -96,7 +96,7 @@ This tool has been tested with digital library files:
 - Scopus                  
 - SpringerLink            
 - ScienceDirect - ElsevierWeb of Science
-- Web of Science (Thanks Dinei André Rockenbach for this)
+- Web of Science (thanks [@dineiar](https://github.com/dineiar) for this)
 
 
 
@@ -104,7 +104,7 @@ This tool has been tested with digital library files:
 ```
 python BibFilesMerge.py -h
 usage: BibFilesMerge.py [-h] -p FOLDERPATH [-f [FILELIST [FILELIST ...]]]
-                        [-o FILENAMEOUT]
+                        [-o FILENAMEOUT] [-l]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -115,11 +115,13 @@ optional arguments:
                         science.bib Springer.bib
   -o FILENAMEOUT, --fileNameOut FILENAMEOUT
                         File name of merged file
+  -l, --logProcess      Record merged and final references to CSV files 
+                        on FOLDERPATH
 ```
 
 Example:
 
-python BibFilesMerge.py -p "E:\Google Drive\Doutorado\Revisão Sistematica\resultados pesquisas" -o MyFile.bib -f IEEE.bib ACM.bib science.bib Springer.bib scopus.bib
+python BibFilesMerge.py -p "output_folder" -o MyFile.bib -f IEEE.bib ACM.bib science.bib Springer.bib scopus.bib -l
 
 >Total  3253  
 >without Author  65  
@@ -129,10 +131,12 @@ python BibFilesMerge.py -p "E:\Google Drive\Doutorado\Revisão Sistematica\resul
 >Final  2270  
 >without Abstract  746  
 
+The two CSV files created on `output_folder` by the `-l` switch.
+
 ### Load Bib File Error
 
 Sometimes errors occur while reading the bib file.   
-In this case, note at the end of the error the error line of the bib file.   
+In this case, note at the end of the error line of the bib file.   
 Then edit the bib file and adjust the error.   
 
 **Error, see the last line**:
