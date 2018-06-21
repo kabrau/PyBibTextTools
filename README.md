@@ -123,11 +123,11 @@ Example:
 
 python BibFilesMerge.py -p "output_folder" -o MyFile.bib -f IEEE.bib ACM.bib science.bib Springer.bib scopus.bib -l
 
->% IEEE.bib 561    
->% ACM.bib 773    
->% science.bib 542   
->% Springer.bib 585   
->% scopus.bib 792   
+>IEEE.bib 561    
+>ACM.bib 773    
+>science.bib 542   
+>Springer.bib 585   
+>scopus.bib 792   
 >
 >Total  3253  
 >without Author  65  
