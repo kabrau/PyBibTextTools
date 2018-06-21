@@ -58,10 +58,15 @@ def run(folderPath, fileList, fileNameOut):
     withoutJornal = 0
     duplicates = 0
 
+    print()
+    print()
+
     for bibFileName in fileList:
-        print(bibFileName,"                                             ")    
+       
 
         bibData = parse_file(os.path.join(folderPath,bibFileName))
+
+        print(bibFileName,len(bibData.entries.values()),"                                             ")    
 
         for entry in bibData.entries.values():
             total = total + 1
