@@ -49,13 +49,13 @@ def getEntryDOIStr(entry):
     doi = ""
     if 'doi' in entry.fields:
         doi = str(entry.rich_fields['doi'])
-    return doi
+    return cleanString(doi)
 
 def getEntryAuthorStr(entry):
     author = ""
     if 'author' in entry.persons:
         author = ' and '.join([''.join(p.last()) + ', ' + ''.join(p.first()) for p in entry.persons['author']])
-    return author
+    return cleanString(author)
 
 def getEntryYearStr(entry):
     year = ""
@@ -67,7 +67,7 @@ def getEntryTitleStr(entry):
     title = ""
     if 'title' in entry.fields:
         title = str(entry.rich_fields['title'])
-    return title
+    return cleanString(title)
 
 def getEntryPublishStr(entry):
     publish = ""
@@ -88,13 +88,17 @@ def getEntryPublishStr(entry):
         publish = capwords(publish)
     elif 'publisher' in entry.fields:
         publish = str(entry.rich_fields['publisher'])
-    return publish
+    return cleanString(publish)
 
 def getEntryAbstractStr(entry):
     abstract = ""
     if 'abstract' in entry.fields:
-        abstract = str(entry.rich_fields['abstract'])
-    return abstract
+        # abstract = str(entry.rich_fields['abstract'])
+        abstract = entry.fields['abstract']
+    return cleanString(abstract)
+
+def cleanString(xStr):
+    return xStr.replace("\\", "").replace("&#38;", "").replace("&#45;", "").replace("&#x002B;", "").replace(";", ".")
 
 
 #=============================================================
@@ -102,9 +106,9 @@ def run(folderPath, fileList, fileNameOut, logProcess):
     global mergedCont
 
     if logProcess:
-        fRemoved = open(os.path.join(folderPath, 'BibFilesMerge_removed.csv'),'w')
+        fRemoved = open(os.path.join(folderPath, 'BibFilesMerge_removed.csv'),'w', encoding='utf-8')
         fRemoved.write("cause;source;key;doi;author;year;title;publish\n")
-        fFinal = open(os.path.join(folderPath, 'BibFilesMerge_final.csv'),'w')
+        fFinal = open(os.path.join(folderPath, 'BibFilesMerge_final.csv'),'w', encoding='utf-8')
         fFinal.write("key;doi;author;year;title;publish;abstract\n")
 
     fileNamePathOut = os.path.join(folderPath, fileNameOut)
