@@ -9,6 +9,9 @@ from pybtex.database import BibliographyData, Entry
 
 import unidecode
 import argparse
+import csv
+from html.parser import HTMLParser
+htmlParser = HTMLParser()
 
 mergedCont = 0 
 
@@ -36,41 +39,44 @@ def mergeEntry(original, novo):
         abs2 = novo.fields['abstract']
     if (len(abs2)>len(abs1)):
         original.fields['abstract'] = novo.fields['abstract']
-        original.fields['source'] = original.fields['source'] +";" + novo.fields['source']
         merged = True
 
     if merged:
         mergedCont = mergedCont + 1
 
+    original.fields['source'] = original.fields['source'] +";" + novo.fields['source']
+
     return original
 
 #=============================================================
 def getEntryDOIStr(entry):
-    doi = ""
+    doi = ''
     if 'doi' in entry.fields:
-        doi = str(entry.rich_fields['doi'])
-    return cleanString(doi)
+        doi = str(entry.rich_fields['doi']).replace('https://doi.org/', '')
+    return doi
 
 def getEntryAuthorStr(entry):
-    author = ""
+    author = ''
     if 'author' in entry.persons:
         author = ' and '.join([''.join(p.last()) + ', ' + ''.join(p.first()) for p in entry.persons['author']])
-    return cleanString(author)
+    return author
 
 def getEntryYearStr(entry):
-    year = ""
+    year = ''
     if 'year' in entry.fields:
-        year = str(entry.rich_fields['year'])
+        year = int(str(entry.rich_fields['year']))
+        if year == 0:
+            year = ''
     return year
 
 def getEntryTitleStr(entry):
-    title = ""
+    title = ''
     if 'title' in entry.fields:
         title = str(entry.rich_fields['title'])
-    return cleanString(title)
+    return title
 
 def getEntryPublishStr(entry):
-    publish = ""
+    publish = ''
     if 'journal' in entry.fields:
         publish = str(entry.rich_fields['journal'])
     elif 'journaltitle' in entry.fields:
@@ -88,17 +94,19 @@ def getEntryPublishStr(entry):
         publish = capwords(publish)
     elif 'publisher' in entry.fields:
         publish = str(entry.rich_fields['publisher'])
-    return cleanString(publish)
+    return publish
 
 def getEntryAbstractStr(entry):
-    abstract = ""
+    abstract = ''
     if 'abstract' in entry.fields:
         # abstract = str(entry.rich_fields['abstract'])
         abstract = entry.fields['abstract']
-    return cleanString(abstract)
+    if (abstract != ''):
+        abstract = htmlParser.unescape(abstract).replace('\\%','%')
+    return abstract
 
-def cleanString(xStr):
-    return xStr.replace("\\", "").replace("&#38;", "").replace("&#45;", "").replace("&#x002B;", "").replace(";", ".")
+def cleanStringToCompare(xStr):
+    return xStr.lower().replace(' ','').replace('.','').replace(',','').replace('-','').replace(':','').replace('/','').replace('\\','').replace("'",'').replace('`','')
 
 
 #=============================================================
@@ -107,9 +115,11 @@ def run(folderPath, fileList, fileNameOut, logProcess):
 
     if logProcess:
         fRemoved = open(os.path.join(folderPath, 'BibFilesMerge_removed.csv'),'w', encoding='utf-8')
-        fRemoved.write("cause;source;key;doi;author;year;title;publish\n")
+        csvRemoved = csv.writer(fRemoved, delimiter=';', quotechar='"')
+        csvRemoved.writerow(['cause','source','key','doi','author','year','title','publish'])
         fFinal = open(os.path.join(folderPath, 'BibFilesMerge_final.csv'),'w', encoding='utf-8')
-        fFinal.write("key;doi;author;year;title;publish;abstract\n")
+        csvFinal = csv.writer(fFinal, delimiter=';', quotechar='"')
+        csvFinal.writerow(['key','source','doi','author','year','title','publish','abstract'])
 
     fileNamePathOut = os.path.join(folderPath, fileNameOut)
 
@@ -130,35 +140,34 @@ def run(folderPath, fileList, fileNameOut, logProcess):
 
         bibData = parse_file(os.path.join(folderPath,bibFileName))
 
-        print(bibFileName,len(bibData.entries.values()),"                                             ")    
+        print(bibFileName + ':',len(bibData.entries.values()),"                                             ")    
 
         for entry in bibData.entries.values():
             total = total + 1
 
-            if logProcess:
-                doi = getEntryDOIStr(entry)
-                author = getEntryAuthorStr(entry)
-                year = getEntryYearStr(entry)
-                title = getEntryTitleStr(entry)
-                publish = getEntryPublishStr(entry)
+            doi = getEntryDOIStr(entry)
+            author = getEntryAuthorStr(entry)
+            year = getEntryYearStr(entry)
+            title = getEntryTitleStr(entry)
+            publish = getEntryPublishStr(entry)
 
-            if not 'author' in entry.persons:
+            if author == '':
                 withoutAuthor = withoutAuthor + 1
                 if logProcess:
                     #cause;source;key;doi;author;year;title;publish
-                    fRemoved.write("{};{};{};{};{};{};{};{}\n".format("no author", bibFileName, entry.key, doi, author, year, title, publish))
+                    csvRemoved.writerow(['no author', bibFileName, entry.key, doi, author, year, title, publish])
                 
-            elif not 'year' in entry.fields or not str(entry.rich_fields['year']) or int(str(entry.rich_fields['year']))==0:
+            elif year == '':
                 withoutYear = withoutYear + 1
                 if logProcess:
                     #cause;source;key;doi;author;year;title;publish
-                    fRemoved.write("{};{};{};{};{};{};{};{}\n".format("no year", bibFileName, entry.key, doi, author, year, title, publish))
+                    csvRemoved.writerow(['no year', bibFileName, entry.key, doi, author, year, title, publish])
                 
-            elif (not 'journal' in entry.fields ) and (not 'booktitle' in entry.fields ):
+            elif publish == '':
                 withoutJornal = withoutJornal + 1
                 if logProcess:
                     #cause;source;key;doi;author;year;title;publish
-                    fRemoved.write("{};{};{};{};{};{};{};{}\n".format("no journal", bibFileName, entry.key, doi, author, year, title, publish))
+                    csvRemoved.writerow(['no journal', bibFileName, entry.key, doi, author, year, title, publish])
 
             else:
                 key =  entry.key.lower()
@@ -166,9 +175,17 @@ def run(folderPath, fileList, fileNameOut, logProcess):
 
                 entry.fields['source'] = bibFileName
                 oldEntry = None
+                cleanTitle = cleanStringToCompare(title)
 
                 for entryOut in bibDataOut.entries.values():
-                    if (entryOut.fields['title'].lower()==entry.fields['title'].lower()):
+                    if (doi != ''):
+                        doiOut = getEntryDOIStr(entryOut)
+                        if (doiOut != '' and doi == doiOut):
+                            oldEntry = entryOut
+                            break
+                    
+                    cleanOutTitle = cleanStringToCompare(entryOut.fields['title'])
+                    if (cleanTitle == cleanOutTitle):
                         year = int(str(entry.rich_fields['year']))
                         yearOut = int(str(entryOut.rich_fields['year']))
                         diff = abs(year-yearOut)
@@ -197,6 +214,7 @@ def run(folderPath, fileList, fileNameOut, logProcess):
 
                             if (lastname==lastNameOut or lastname==firstNameOut or lastNameOut==firstName):
                                 oldEntry = entryOut
+                                break
 
 
   
@@ -205,14 +223,14 @@ def run(folderPath, fileList, fileNameOut, logProcess):
 
                     if logProcess:
                         #cause;source;key;doi;author;year;title;publish
-                        fRemoved.write("{};{};{};{};{};{};{};{}\n".format("duplicate of next", bibFileName, entry.key, doi, author, year, title, publish))
+                        csvRemoved.writerow(['duplicate of next', bibFileName, entry.key, doi, author, year, title, publish])
 
                         doi = getEntryDOIStr(oldEntry)
                         author = getEntryAuthorStr(oldEntry)
                         year = getEntryYearStr(oldEntry)
                         title = getEntryTitleStr(oldEntry)
                         publish = getEntryPublishStr(oldEntry)
-                        fRemoved.write("{};{};{};{};{};{};{};{}\n".format("duplicate of prev", oldEntry.fields['source'], oldEntry.key, doi, author, year, title, publish))
+                        csvRemoved.writerow(['duplicate of prev', oldEntry.fields['source'], oldEntry.key, doi, author, year, title, publish])
 
                     bibDataOut.entries[oldEntry.key] = mergeEntry(oldEntry, entry)
 
@@ -222,14 +240,14 @@ def run(folderPath, fileList, fileNameOut, logProcess):
                     bibDataOut.entries[key] = entry
 
     print("                                                     ")
-    print("Total ", total)
+    print("Total:\t\t", total)
 
-    print("without Author ", withoutAuthor)
-    print("without Year ", withoutYear)
-    print("without Jornal or conference or booktitle", withoutJornal)
+    print("No Author:\t", withoutAuthor)
+    print("No Year:\t", withoutYear)
+    print("No Publisher:\t", withoutJornal)
 
-    print("Duplicates ", duplicates, " merged ",mergedCont)
-    print("Final ", len(bibDataOut.entries))
+    print("Duplicates:", duplicates, "| Merged:",mergedCont)
+    print("Final:\t\t", len(bibDataOut.entries))
 
 
     withoutAbstractList = {i: 0 for i in fileList}
@@ -243,8 +261,8 @@ def run(folderPath, fileList, fileNameOut, logProcess):
             publish = getEntryPublishStr(entry)
             abstract = getEntryAbstractStr(entry)
 
-            #key;doi;author;year;title;publish;abstract
-            fFinal.write("{};{};{};{};{};{};{}\n".format(entry.key, doi, author, year, title, publish, abstract))
+            #key;source;doi;author;year;title;publish;abstract
+            csvFinal.writerow([entry.key, entry.fields['source'], doi, author, year, title, publish, abstract])
 
         if not 'abstract' in entry.fields:
             withoutAbstract = withoutAbstract + 1
