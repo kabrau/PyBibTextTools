@@ -94,6 +94,8 @@ def getEntryPublishStr(entry):
         publish = capwords(publish)
     elif 'publisher' in entry.fields:
         publish = str(entry.rich_fields['publisher'])
+    elif 'arxivId' in entry.fields:
+        publish = "arXiv"
     return publish
 
 def getEntryAbstractStr(entry):
