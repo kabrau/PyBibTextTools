@@ -60,6 +60,9 @@ def run(database, bibFileName, proxy, limit):
 
             elif database=="ieee":
                 site = "https://ieeexplore.ieee.org/document/"+entry.key+"/"
+            
+            elif database=="arxiv":
+                site = "https://arxiv.org/abs/"+entry.fields['eprint']
                 
             
             try:
@@ -72,6 +75,7 @@ def run(database, bibFileName, proxy, limit):
                 req = Request(site, headers={'User-Agent': 'Mozilla/5.0'})
                 html = urlopen(req).read()
                 htmlText = html.decode("utf-8")
+                texto = ""
 
                 if database=="springer":
                     inicio = htmlText.find('<strong class="EmphasisTypeBold ">Abstract.</strong>')
@@ -98,16 +102,23 @@ def run(database, bibFileName, proxy, limit):
 
                 elif database=="ieee":
                     inicio = htmlText.find('"abstract":')
-                    subtexto = texto[inicio:]
+                    subtexto = htmlText[inicio:]
                     abstractSplit = subtexto.split('"')
                     if len(abstractSplit)>=3:
                         texto = abstractSplit[3]
+
+                elif database=="arxiv":
+                    inicio = htmlText.find('>Abstract:</span>')+17
+                    subtexto = htmlText[inicio:]
+                    abstractSplit = subtexto.split('</blockquote>')
+                    if len(abstractSplit)>=2:
+                        texto = abstractSplit[0]
 
                 if texto=="":
                     print("Abstract not found")
                 else:
                     print("Loaded")
-                    entry.fields['abstract'] = texto
+                    entry.fields['abstract'] = texto.strip()
 
                 entry.fields['url'] = site
                 if database=="springer":
@@ -145,7 +156,7 @@ def run(database, bibFileName, proxy, limit):
 #=============================================================================
 # construct the argument parser and parse the arguments
 ap = argparse.ArgumentParser()
-ap.add_argument("-d", "--database", choices=['springer', 'acm', 'ieee'], required=True, help="select database")
+ap.add_argument("-d", "--database", choices=['springer', 'acm', 'ieee','arxiv'], required=True, help="select database")
 ap.add_argument("-f", "--bibFileName", required=True, help="Springer bibFile name")
 
 ap.add_argument("-p", "--proxy", required=False, help="internet proxy, ex: https://john:password123@palmas.pucrs.br:4001")
